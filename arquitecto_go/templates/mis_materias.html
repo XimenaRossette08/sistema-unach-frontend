@@ -1,0 +1,14 @@
+<div class="container">
+    <h2 style="color:#003366;">📚 Mi Carga Académica Oficial</h2>
+    {{range .}}
+    <div style="border: 2px solid #28a745; border-radius: 8px; padding: 20px; margin-bottom: 15px;">
+        <h3>Materia: {{.Nombre}}</h3>
+        <p>⏰ <b>Horario:</b> {{.Tipo}}</p>
+        <p>🎯 <b>Objetivo:</b> {{.Objetivo}}</p>
+        <p>⏳ <b>Duración:</b> {{.Duracion}} horas</p>
+    </div>
+    {{else}}
+    <p>Aún no tienes materias asignadas para este ciclo.</p>
+    {{end}}
+    <a href="/">Salir</a>
+</div>

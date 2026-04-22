@@ -1,0 +1,21 @@
+# Frontend (React)
+frontend-unach/node_modules/
+frontend-unach/dist/
+frontend-unach/.env
+
+# Go (Backend & Arquitecto)
+**/bin/
+**/*.exe
+**/*.bin
+**/vendor/
+
+# Python (Ejecutor & Worker)
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/env/
+**/.env
+
+# Otros
+.DS_Store
+.vscode/

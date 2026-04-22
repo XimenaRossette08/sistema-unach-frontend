@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SIAE UNACH - Sistema de Gestión</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; display: flex; height: 100vh; }
+        .hero { flex: 1; background: #003366; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .login-section { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; }
+        .unach-logo { width: 150px; margin-bottom: 20px; }
+        .btn-portal { width: 280px; padding: 15px; margin: 10px; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; text-decoration: none; text-align: center; }
+        .btn-admin { background: #C0A060; color: #003366; }
+        .btn-docente { background: #003366; color: white; }
+        .btn-portal:hover { transform: scale(1.05); filter: brightness(1.1); }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>SISTEMA DE GESTIÓN ACADÉMICA</h1>
+        <p>Universidad Autónoma de Chiapas</p>
+        <p><i>"Por la conciencia de la necesidad de servir"</i></p>
+    </div>
+    <div class="login-section">
+        <img src="https://www.unach.mx/images/logo_unach.png" class="unach-logo" alt="UNACH">
+        <h2>Bienvenido al Portal</h2>
+        
+        <a href="/admin-dashboard" class="btn-portal btn-admin">Acceso Administrador</a>
+        
+        <hr style="width: 80%; margin: 20px 0;">
+        
+        <h3>Acceso para Docentes</h3>
+        <form action="/login-docente" method="POST">
+            <input type="text" name="rfc" placeholder="Ingresa tu RFC" style="padding: 12px; width: 250px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px;" required>
+            <br>
+            <button type="submit" class="btn-portal btn-docente">Entrar al Buzón</button>
+        </form>
+    </div>
+</body>
+</html>

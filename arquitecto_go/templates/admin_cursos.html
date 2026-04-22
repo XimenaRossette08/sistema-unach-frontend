@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin - Cursos UNACH</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; }
+        .header { background: #003366; color: white; padding: 20px; text-align: center; border-bottom: 5px solid #C0A060; }
+        .container { max-width: 900px; margin: 30px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #003366; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .full { grid-column: span 2; }
+        label { font-weight: bold; display: block; margin-top: 10px; color: #444; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-admin { background: #003366; color: white; padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 25px; font-size: 16px; transition: 0.3s; }
+        .btn-admin:hover { background: #C0A060; color: #003366; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>🛡️ Panel de Control del Administrador</h1></div>
+    <div class="container">
+        <h2>Crear Nueva Convocatoria de Curso</h2>
+        <form action="/guardar-curso" method="POST">
+            <div class="grid">
+                <div class="full">
+                    <label>Nombre del Curso:</label>
+                    <input type="text" name="nombre_curso" placeholder="Ej. Programación en Go" required>
+                </div>
+                <div>
+                    <label>Tipo de Capacitación:</label>
+                    <select name="tipo">
+                        <option value="Taller">Taller</option>
+                        <option value="Diplomado">Diplomado</option>
+                        <option value="Certificación">Certificación</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Modalidad:</label>
+                    <select name="modalidad">
+                        <option value="Presencial">Presencial</option>
+                        <option value="En Línea">En Línea</option>
+                        <option value="Mixto">Mixto</option>
+                    </select>
+                </div>
+                <div class="full">
+                    <label>Objetivo y Dirigido a:</label>
+                    <textarea name="objetivo" rows="2" placeholder="¿Qué aprenderán y para quién es?"></textarea>
+                </div>
+                <div class="full">
+                    <label>Contenido Temático:</label>
+                    <textarea name="contenido" rows="4" placeholder="Lista de temas..."></textarea>
+                </div>
+                <div>
+                    <label>Duración (Horas):</label>
+                    <input type="number" name="duracion" required>
+                </div>
+                <div>
+                    <label>Horario Sugerido:</label>
+                    <input type="text" name="horario" placeholder="Ej: Lunes y Miércoles 5-7 PM">
+                </div>
+            </div>
+            <button type="submit" class="btn-admin">Publicar Curso e Invitar Docentes</button>
+        </form>
+    </div>
+</body>
+</html>

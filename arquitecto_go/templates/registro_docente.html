@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Docentes - UNACH</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; }
+        .navbar { background: #003366; padding: 15px; color: white; text-align: center; }
+        .container { max-width: 700px; margin: 30px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #003366; border-bottom: 2px solid #C0A060; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .full-width { grid-column: span 2; }
+        .btn { background: #003366; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
+        .btn:hover { background: #C0A060; color: #003366; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <strong>Sistema de Registro de Cursos - UNACH</strong>
+    </div>
+    <div class="container">
+        <h2>📄 Expediente del Docente</h2>
+        <form action="/guardar-docente" method="POST">
+            <div class="grid">
+                <div class="form-group">
+                    <label>RFC:</label>
+                    <input type="text" name="rfc" placeholder="ABCD123456XYZ" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Completo:</label>
+                    <input type="text" name="nombre" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Dirección Particular:</label>
+                    <input type="text" name="direccion" required>
+                </div>
+                <div class="form-group">
+                    <label>Código Postal:</label>
+                    <input type="text" name="cp" required>
+                </div>
+                <div class="form-group">
+                    <label>Banco para Depósito:</label>
+                    <input type="text" name="banco" placeholder="Ej. Banamex" required>
+                </div>
+                <div class="form-group">
+                    <label>Situación Fiscal:</label>
+                    <select name="situacion">
+                        <option value="Activo">Activo</option>
+                        <option value="Sueldos y Salarios">Sueldos y Salarios</option>
+                        <option value="Resico">RESICO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>INE (Anexar ID/Folio):</label>
+                    <input type="text" name="ine" placeholder="Número de identificación" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Descripción del Curso a Impartir:</label>
+                    <textarea name="descripcion" rows="3"></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn">Registrarse como Docente</button>
+        </form>
+    </div>
+</body>
+</html>

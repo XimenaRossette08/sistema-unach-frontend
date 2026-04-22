@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Invitación a Alumnos - UNACH</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #003366; border-bottom: 2px solid #C0A060; padding-bottom: 10px; }
+        label { font-weight: bold; display: block; margin: 15px 0 5px; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        select { width: 100%; padding: 10px; margin-bottom: 10px; }
+        .btn-send { background: #003366; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 20px; }
+        .btn-send:hover { background: #C0A060; color: #003366; }
+        .info { font-size: 0.9em; color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📧 Invitación Masiva a Alumnos</h2>
+        <form action="/procesar-invitacion-alumnos" method="POST">
+            <label>Seleccionar Curso:</label>
+            <select name="curso_id">
+                <option value="Programacion Go">Programación en Go</option>
+                <option value="Calculo Diferencial">Cálculo Diferencial</option>
+            </select>
+
+            <label>Correos de Alumnos:</label>
+            <textarea name="correos" rows="6" placeholder="alumno1@unach.mx, alumno2@unach.mx..."></textarea>
+            <p class="info">Separa los correos por comas o saltos de línea.</p>
+
+            <button type="submit" class="btn-send">Enviar Invitaciones Masivas</button>
+        </form>
+    </div>
+</body>
+</html>

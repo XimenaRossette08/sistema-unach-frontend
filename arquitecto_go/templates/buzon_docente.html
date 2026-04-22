@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Buzón del Docente - UNACH</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 40px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h2 { color: #003366; border-bottom: 3px solid #C0A060; padding-bottom: 10px; }
+        .card { border: 1px solid #ddd; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 8px solid #C0A060; }
+        .badge { background: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 5px; font-weight: bold; }
+        .btn-aceptar { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block; }
+        .btn-declinar { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; text-decoration: none; margin-left: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📩 Mis Invitaciones Pendientes</h2>
+        
+        {{range .}}
+        <div class="card">
+            <div style="display: flex; justify-content: space-between;">
+                <h3>Materia: {{.NombreCurso}}</h3>
+                <span class="badge">{{.Estado}}</span>
+            </div>
+            <p>Horario: <strong>{{.Horario}}</strong></p>
+            <hr>
+            <div style="margin-top: 15px;">
+                <a href="/aceptar-materia?id={{.ID}}&rfc={{.RFC}}" class="btn-aceptar">✅ Aceptar Materia</a>
+                <a href="/" class="btn-declinar">❌ Declinar</a>
+            </div>
+        </div>
+        {{else}}
+        <p style="text-align: center; padding: 20px;">No tienes invitaciones por ahora.</p>
+        {{end}}
+
+        <br>
+        <a href="/" style="color: #003366; font-weight: bold; text-decoration: none;">🏠 Volver al Inicio</a>
+    </div>
+
+</body>
+</html>
