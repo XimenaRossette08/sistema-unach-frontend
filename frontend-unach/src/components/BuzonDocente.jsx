@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// 🚩 Recibimos el RFC del usuario que inició sesión desde App.jsx
 export default function BuzonDocente({ rfc }) {
-  // 🚩 Verificación del RFC que está llegando al componente
-  console.log("RFC recibido en Buzón:", rfc); 
-
   const [invitaciones, setInvitaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
 
@@ -12,10 +10,9 @@ export default function BuzonDocente({ rfc }) {
   useEffect(() => {
     const fetchInvitaciones = async () => {
       try {
-        if (!rfc) return; // Evitamos hacer la petición si el RFC no está disponible
+        // Consultamos al microservicio filtrando por el RFC del docente logueado
         const res = await axios.get(`http://localhost:8002/api/mis-invitaciones?rfc=${rfc}`);
-        
-        // Si el endpoint devuelve null nos aseguramos de asignar un arreglo vacío
+        // Si el endpoint devuelve null por algún motivo, nos aseguramos de asignar un arreglo vacío
         setInvitaciones(res.data || []);
       } catch (err) {
         console.error("Error al obtener invitaciones:", err);
@@ -24,12 +21,13 @@ export default function BuzonDocente({ rfc }) {
       }
     };
 
-    fetchInvitaciones();
+    if (rfc) fetchInvitaciones();
   }, [rfc]);
 
   // ✅ Función para aceptar la propuesta de trabajo
   const manejarAceptar = async (id, nombreCurso) => {
     try {
+      // Avisamos al backend (Go) que el docente aceptó
       await axios.post('http://localhost:8002/api/aceptar-invitacion', { id });
       
       alert(`🎉 ¡Excelente! Has aceptado impartir el curso: ${nombreCurso}.`);
@@ -170,3 +168,7 @@ const successBadge = {
   alignItems: 'center', 
   gap: '8px' 
 };
+export default function BuzonDocente({ rfc }) {
+  console.log("RFC recibido en Buzón:", rfc); // 🚩 Debe ser exactamente GUTL1234HC (sin espacios)
+
+  // ...

@@ -2,243 +2,174 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 export default function RegistroDocente() {
-  const [formData, setFormData] = useState({
-    rfc: '',
-    nombre: '',
-    direccion: '',
-    cp: '',
-    banco: '',
-    situacion: 'Activo',
-    ine: '',
-    descripcion: ''
+  const [docente, setDocente] = useState({
+    rfc: '', nombre: '', descripcion: '', 
+    direccion: '', codigo_postal: '', banco: '', ine_folio: '', situacion_fiscal: 'Activo'
   });
 
+  const [archivoINE, setArchivoINE] = useState(null);
+  const [archivoCSF, setArchivoCSF] = useState(null);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    let { name, value } = e.target;
+    
+    if (name === 'ine_folio') {
+      value = value.replace(/\D/g, ''); 
+    }
+    
+    // Convertir RFC a mayúsculas y permitir solo letras y números
+    if (name === 'rfc') {
+      value = value.toUpperCase().replace(/[^A-Z0-9Ñ]/g, '');
+    }
+    
+    setDocente({ ...docente, [name]: value });
   };
 
-  const handleSubmit = async () => {
+  const handleFileINE = (e) => { setArchivoINE(e.target.files[0]); };
+  const handleFileCSF = (e) => { setArchivoCSF(e.target.files[0]); };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!archivoINE || !archivoCSF) {
+      alert("⚠️ Por favor, adjunta los archivos físicos del INE y la Constancia de Situación Fiscal.");
+      return;
+    }
+
+    if (docente.ine_folio.length !== 13) {
+      alert("⚠️ El folio del INE debe tener exactamente 13 números.");
+      return;
+    }
+
+    if (docente.rfc.length !== 13) {
+      alert("⚠️ El RFC debe tener exactamente 13 caracteres.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("rfc", docente.rfc);
+    formData.append("nombre", docente.nombre);
+    formData.append("descripcion", docente.descripcion);
+    formData.append("direccion", docente.direccion);
+    formData.append("codigo_postal", docente.codigo_postal);
+    formData.append("banco", docente.banco);
+    formData.append("ine_folio", docente.ine_folio);
+    formData.append("situacion_fiscal", docente.situacion_fiscal);
+    
+    formData.append("ine_archivo", archivoINE);
+    formData.append("csf_archivo", archivoCSF);
+
     try {
-      console.log("Enviando a Postgres...", formData);
-      const response = await axios.post('http://localhost:8002/api/registro-docente', formData);
+      await axios.post('/api/registro-docente', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert("✅ Docente y archivos registrados correctamente.");
       
-      if (response.status === 200 || response.status === 201) {
-        alert("✅ ¡Excelente! Los datos de " + formData.nombre + " se guardaron en unach_db.");
-        setFormData({ rfc: '', nombre: '', direccion: '', cp: '', banco: '', situacion: 'Activo', ine: '', descripcion: '' });
-      }
-    } catch (error) {
-      console.error("Error al conectar con Go:", error);
-      alert("❌ Error: No se pudo conectar con el servidor de Go. ¿Está encendido?");
+      setDocente({ rfc: '', nombre: '', descripcion: '', direccion: '', codigo_postal: '', banco: '', ine_folio: '', situacion_fiscal: 'Activo' });
+      document.getElementById('file-ine').value = '';
+      document.getElementById('file-csf').value = '';
+      setArchivoINE(null);
+      setArchivoCSF(null);
+    } catch (err) {
+      alert("❌ Error al registrar al docente o faltan documentos.");
     }
   };
 
   return (
-    <div style={pageContainer}>
-      <div style={cardStyle}>
-        {/* Encabezado Estilo Panel */}
-        <h2 style={titleStyle}>📄 Expediente del Docente</h2>
-        <div style={goldDivider}></div>
+    <div style={{ maxWidth: '800px', margin: '0 auto', background: 'white', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+      <h2 style={{ color: '#003366', marginBottom: '20px' }}>📝 Registro Oficial de Docentes</h2>
+      <p style={{ color: '#666', marginBottom: '30px' }}>Complete el expediente del docente y cargue sus documentos probatorios.</p>
 
-        <div style={formGrid}>
-          {/* RFC */}
-          <div style={inputGroup}>
-            <label style={labelStyle}>RFC:</label>
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        
+        <div style={{ gridColumn: 'span 2' }}>
+          <label style={labelStyle}>Nombre Completo:</label>
+          <input name="nombre" value={docente.nombre} onChange={handleChange} required style={inputStyle} />
+        </div>
+
+        <div>
+          <label style={labelStyle}>RFC (13 caracteres):</label>
+          <input 
+            name="rfc" 
+            placeholder="Ej. EAGRO12345XR1" 
+            value={docente.rfc} 
+            onChange={handleChange} 
+            maxLength="13" 
+            minLength="13"
+            title="El RFC de una persona física debe tener 13 caracteres"
+            required 
+            style={inputStyle} 
+          />
+        </div>
+
+        <div>
+          <label style={labelStyle}>Nombre del Banco:</label>
+          <input name="banco" placeholder="Ej. BBVA, Santander" value={docente.banco} onChange={handleChange} required style={inputStyle} />
+        </div>
+
+        <div style={{ gridColumn: 'span 2' }}>
+          <label style={labelStyle}>Dirección Completa:</label>
+          <input name="direccion" value={docente.direccion} onChange={handleChange} required style={inputStyle} />
+        </div>
+
+        <div>
+          <label style={labelStyle}>Código Postal:</label>
+          <input name="codigo_postal" value={docente.codigo_postal} onChange={handleChange} required style={inputStyle} />
+        </div>
+
+        <div>
+          <label style={labelStyle}>Descripción del curso a impartir:</label>
+          <input name="descripcion" placeholder="Ej. Matemáticas empleadas" value={docente.descripcion} onChange={handleChange} required style={inputStyle} />
+        </div>
+
+        <div style={{ gridColumn: 'span 2', background: '#f4f7f9', padding: '20px', borderRadius: '8px', marginTop: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div style={{ gridColumn: 'span 2' }}>
+            <h4 style={{ margin: '0 0 5px 0', color: '#003366' }}>📎 Documentación Requerida</h4>
+          </div>
+          
+          <div>
+            <label style={labelStyle}>Folio del INE (13 dígitos):</label>
             <input 
-              name="rfc" 
               type="text" 
-              value={formData.rfc} 
+              name="ine_folio" 
+              placeholder="Ej. 1234567890123" 
+              value={docente.ine_folio} 
               onChange={handleChange} 
-              placeholder="ABCD123456XYZ" 
+              maxLength="13" 
+              minLength="13" 
+              title="El folio debe tener exactamente 13 números"
+              required 
               style={inputStyle} 
             />
           </div>
 
-          {/* Nombre */}
-          <div style={inputGroup}>
-            <label style={labelStyle}>Nombre Completo:</label>
-            <input 
-              name="nombre" 
-              type="text" 
-              value={formData.nombre} 
-              onChange={handleChange} 
-              style={inputStyle} 
-            />
-          </div>
-
-          {/* Dirección */}
-          <div style={{ ...inputGroup, gridColumn: 'span 2' }}>
-            <label style={labelStyle}>Dirección Particular:</label>
-            <input 
-              name="direccion" 
-              type="text" 
-              value={formData.direccion} 
-              onChange={handleChange} 
-              style={inputStyle} 
-            />
-          </div>
-
-          {/* CP y Banco */}
-          <div style={inputGroup}>
-            <label style={labelStyle}>Código Postal:</label>
-            <input 
-              name="cp" 
-              type="text" 
-              value={formData.cp} 
-              onChange={handleChange} 
-              style={inputStyle} 
-            />
-          </div>
-
-          <div style={inputGroup}>
-            <label style={labelStyle}>Banco para Depósito:</label>
-            <input 
-              name="banco" 
-              type="text" 
-              value={formData.banco} 
-              onChange={handleChange} 
-              placeholder="Ej. Banamex" 
-              style={inputStyle} 
-            />
-          </div>
-
-          {/* Situación e INE */}
-          <div style={inputGroup}>
-            <label style={labelStyle}>Situación Fiscal:</label>
-            <select 
-              name="situacion" 
-              value={formData.situacion} 
-              onChange={handleChange} 
-              style={inputStyle}
-            >
+          <div>
+            <label style={labelStyle}>Estado de Situación Fiscal:</label>
+            <select name="situacion_fiscal" value={docente.situacion_fiscal} onChange={handleChange} style={inputStyle}>
               <option value="Activo">Activo</option>
               <option value="Inactivo">Inactivo</option>
             </select>
           </div>
 
-          <div style={inputGroup}>
-            <label style={labelStyle}>INE (Anexar ID/Folio):</label>
-            <input 
-              name="ine" 
-              type="text" 
-              value={formData.ine} 
-              onChange={handleChange} 
-              placeholder="Número de identificación" 
-              style={inputStyle} 
-            />
+          <div>
+            <label style={labelStyle}>Subir Escaneo INE (PDF o JPG):</label>
+            <input id="file-ine" type="file" onChange={handleFileINE} accept=".pdf,.jpg,.png" required style={fileStyle} />
           </div>
 
-          {/* Descripción */}
-          <div style={{ ...inputGroup, gridColumn: 'span 2' }}>
-            <label style={labelStyle}>Descripción del Curso a Impartir:</label>
-            <textarea 
-              name="descripcion" 
-              value={formData.descripcion} 
-              onChange={handleChange} 
-              style={textareaStyle}
-            ></textarea>
+          <div>
+            <label style={labelStyle}>Subir Constancia Fiscal (PDF):</label>
+            <input id="file-csf" type="file" onChange={handleFileCSF} accept=".pdf" required style={fileStyle} />
           </div>
         </div>
 
-        <button onClick={handleSubmit} style={btnStyle}>
-          Registrarse como Docente
+        <button type="submit" style={{ gridColumn: 'span 2', background: '#003366', color: 'white', padding: '15px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', marginTop: '10px' }}>
+          Guardar Expediente Docente
         </button>
-      </div>
+      </form>
     </div>
   );
 }
 
-// --- ESTILOS ACTUALIZADOS (IGUAL AL DE CURSOS) ---
-
-const pageContainer = {
-  background: '#f4f7f9', // Fondo gris clarito para la página
-  minHeight: '100vh',
-  padding: '40px 20px',
-  display: 'flex',
-  justifyContent: 'center',
-  fontFamily: 'Arial, sans-serif'
-};
-
-const cardStyle = {
-  background: 'white',
-  width: '100%',
-  maxWidth: '850px',
-  padding: '40px',
-  borderRadius: '12px',
-  boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
-  borderTop: '5px solid #003366' // Línea azul UNACH arriba
-};
-
-const titleStyle = {
-  color: '#003366',
-  fontSize: '1.6rem',
-  margin: '0',
-  fontWeight: 'bold'
-};
-
-const goldDivider = {
-  height: '2px',
-  background: '#C0A060',
-  width: '100%',
-  margin: '15px 0 30px 0'
-};
-
-const formGrid = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: '20px'
-};
-
-const inputGroup = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '8px'
-};
-
-const labelStyle = {
-  fontWeight: 'bold',
-  color: '#444',
-  fontSize: '0.9rem'
-};
-
-// 🚩 TEXTO OSCURO ASEGURADO
-const inputStyle = {
-  padding: '12px',
-  borderRadius: '6px',
-  border: '1px solid #ccc',
-  fontSize: '1rem',
-  outline: 'none',
-  background: '#ffffff',
-  color: '#333333' // Letra gris oscuro
-};
-
-const textareaStyle = {
-  padding: '12px',
-  borderRadius: '6px',
-  border: '1px solid #ccc',
-  fontSize: '1rem',
-  height: '100px',
-  resize: 'none',
-  outline: 'none',
-  background: '#ffffff',
-  color: '#333333', // Letra gris oscuro
-  fontFamily: 'inherit'
-};
-
-const btnStyle = {
-  width: '100%',
-  background: '#003366',
-  color: 'white',
-  padding: '18px',
-  border: 'none',
-  borderRadius: '8px',
-  fontSize: '1.1rem',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  marginTop: '40px',
-  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-  transition: '0.3s'
-};
+const labelStyle = { display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444', fontSize: '0.9rem' };
+const inputStyle = { width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem', boxSizing: 'border-box' };
+const fileStyle = { width: '100%', padding: '10px', background: 'white', border: '1px dashed #ccc', borderRadius: '6px' };
