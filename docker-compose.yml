@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend-go:
+    build:
+      context: ./arquitecto_go
+    ports:
+      - "8090:8090"
+    environment:
+      # IMPORTANTE: Aquí debes poner la IP privada de la instancia EC2 donde esté tu PostgreSQL
+      # o la IP pública si está en otro servidor. Cambia TU_IP_EC2 por la IP real.
+      - DATABASE_URL=postgres://postgres:102538@TU_IP_EC2:5433/db_cursos?sslmode=disable
+    restart: always
+
+  frontend-react:
+    build:
+      context: ./frontend-unach
+    ports:
+      - "80:80" # El dashboard será accesible directamente por la IP de la instancia
+    depends_on:
+      - backend-go
+    restart: always

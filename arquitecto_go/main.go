@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os" // <- IMPORTANTE: Añadido para leer variables de entorno
 	"regexp"
 	"strings"
 
@@ -51,7 +52,7 @@ func analizadorLexico(input string) (string, string, string, error) {
 			"ERROR LEXICO: Sentencia incompleta. Se esperaba '[VERBO] [OBJETO] [NOMBRE]'")
 	}
 
-	verbo  := strings.ToUpper(tokens[0])
+	verbo := strings.ToUpper(tokens[0])
 	objeto := strings.ToUpper(tokens[1])
 	nombre := strings.TrimSuffix(strings.TrimSuffix(tokens[2], ";"), "(")
 
@@ -240,8 +241,15 @@ func ejecutarDDL(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	var err error
-	db, err = sql.Open("postgres",
-		"postgres://postgres:102538@localhost:5433/db_cursos?sslmode=disable")
+
+	// IMPORTANTE: Leemos la URL de la base de datos desde las variables de entorno
+	dbUrl := os.Getenv("DATABASE_URL")
+	if dbUrl == "" {
+		// Fallback para cuando desarrollas en tu PC sin Docker
+		dbUrl = "postgres://postgres:102538@localhost:5433/db_cursos?sslmode=disable"
+	}
+
+	db, err = sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatalf("Error conectando a PostgreSQL: %v", err)
 	}
@@ -249,9 +257,12 @@ func main() {
 
 	http.HandleFunc("/api/ejecutar-ddl", ejecutarDDL)
 
-	fmt.Println("🏗️  ArquitectoDDL Go corriendo en http://localhost:8090")
+	// Ajustado para Docker: Escucha en 0.0.0.0
+	fmt.Println("🏗️  ArquitectoDDL Go corriendo en http://0.0.0.0:8090")
 	fmt.Println("📐 Operaciones: CREATE | DROP | ALTER")
 	fmt.Println("🔍 Analizadores: Lexico | Sintactico | Semantico")
 	fmt.Println("🔐 JWT validacion activa")
+
+	// Ajustado para Docker: :8090 permite tráfico desde fuera del contenedor
 	log.Fatal(http.ListenAndServe(":8090", nil))
 }
