@@ -53,6 +53,7 @@ def startup():
 
 
 app.include_router(auth_router)
+app.include_router(notificaciones_router)
 app.include_router(cursos_router)
 app.include_router(docentes_router)
 app.include_router(alumnos_router)
