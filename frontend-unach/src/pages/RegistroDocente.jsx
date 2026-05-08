@@ -61,7 +61,7 @@ export default function RegistroDocente() {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://siae-unach.duckdns.org/api/registro-docente', formData, {
+      await axios.post('https://siae-unach.duckdns.org/api/registro-docente', formData, {
         headers: {
           'Content-Type':  'multipart/form-data',
           'Authorization': `Bearer ${token}`,

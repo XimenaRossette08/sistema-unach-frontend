@@ -24,7 +24,7 @@ export default function CrearCurso() {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://siae-unach.duckdns.org/api/crear-curso', cursoData, {
+      await axios.post('https://siae-unach.duckdns.org/api/crear-curso', cursoData, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

@@ -16,7 +16,7 @@ export default function MonitorAlumnos() {
     const fetchAlumnos = async () => {
       try {
         // 🚩 Usamos la URL completa para evitar problemas de proxy
-        const res = await axios.get('http://siae-unach.duckdns.org/api/lista-alumnos', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+        const res = await axios.get('https://siae-unach.duckdns.org/api/lista-alumnos', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         setAlumnos(res.data || []);
       } catch (err) {
         console.error('Error al traer alumnos:', err);
@@ -30,7 +30,7 @@ export default function MonitorAlumnos() {
   // 📄 DESCARGA RÁPIDA: Genera el PDF del curso de esa fila
   const descargarPDFPorCurso = (cursoId) => {
     if (!cursoId) return alert("Este alumno no tiene un curso asignado.");
-    const url = `http://siae-unach.duckdns.org/api/generar-pdf?cursoId=${cursoId}`;
+    const url = `https://siae-unach.duckdns.org/api/generar-pdf?cursoId=${cursoId}`;
     window.open(url, '_blank');
   };
 
@@ -53,7 +53,7 @@ export default function MonitorAlumnos() {
       };
 
       const token = localStorage.getItem('token');
-      await axios.post('http://siae-unach.duckdns.org/api/enviar-reporte-correo', payload, { headers: { 'Authorization': `Bearer ${token}` } });
+      await axios.post('https://siae-unach.duckdns.org/api/enviar-reporte-correo', payload, { headers: { 'Authorization': `Bearer ${token}` } });
       
       alert("✅ ¡Éxito! El docente recibirá el PDF en su correo.");
       setDatosCorreo({ curso_id: '', correo_profesor: '' }); // Limpiamos campos

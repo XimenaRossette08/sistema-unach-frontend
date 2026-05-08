@@ -36,7 +36,7 @@ export default function CatalogoCursos() {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://siae-unach.duckdns.org/api/enviar-reporte-correo', { 
+      await axios.post('https://siae-unach.duckdns.org/api/enviar-reporte-correo', { 
         curso_id: id.toString(), 
         correo_profesor: correo 
       }, { headers: { 'Authorization': `Bearer ${token}` } });

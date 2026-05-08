@@ -14,8 +14,8 @@ export default function GestionInvitaciones() {
     const fetchData = async () => {
       try {
         const [resDoc, resCur] = await Promise.all([
-          axios.get('http://siae-unach.duckdns.org/api/docentes', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }),
-          axios.get('http://siae-unach.duckdns.org/api/cursos')
+          axios.get('https://siae-unach.duckdns.org/api/docentes', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }),
+          axios.get('https://siae-unach.duckdns.org/api/cursos')
         ]);
         setDocentes(resDoc.data);
         setCursos(resCur.data);
@@ -61,7 +61,7 @@ export default function GestionInvitaciones() {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://siae-unach.duckdns.org/api/enviar-invitacion', payload, { headers: { 'Authorization': `Bearer ${token}` } });
+      await axios.post('https://siae-unach.duckdns.org/api/enviar-invitacion', payload, { headers: { 'Authorization': `Bearer ${token}` } });
       alert(`✅ ¡Invitación enviada exitosamente a ${docente.nombre}!`);
     } catch (err) {
       alert("❌ Error: No se pudo procesar la invitación en el microservicio.");

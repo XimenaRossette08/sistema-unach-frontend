@@ -13,7 +13,7 @@ export default function BuzonDocente({ rfc }) {
     const fetchInvitaciones = async () => {
       try {
         if (!rfc) return; // Evitamos hacer la petición si el RFC no está disponible
-        const res = await axios.get(`http://siae-unach.duckdns.org/api/mis-invitaciones?rfc=${rfc}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+        const res = await axios.get(`https://siae-unach.duckdns.org/api/mis-invitaciones?rfc=${rfc}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         
         // Si el endpoint devuelve null nos aseguramos de asignar un arreglo vacío
         setInvitaciones(res.data || []);
@@ -31,7 +31,7 @@ export default function BuzonDocente({ rfc }) {
   const manejarAceptar = async (id, nombreCurso) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://siae-unach.duckdns.org/api/aceptar-invitacion', { id }, { headers: { 'Authorization': `Bearer ${token}` } });
+      await axios.post('https://siae-unach.duckdns.org/api/aceptar-invitacion', { id }, { headers: { 'Authorization': `Bearer ${token}` } });
       
       alert(`🎉 ¡Excelente! Has aceptado impartir el curso: ${nombreCurso}.`);
 
