@@ -54,6 +54,6 @@ class LoginRequest(BaseModel):
 def login(req: LoginRequest, request: Request):
     if req.usuario == "admin" and req.password == "unach2026":
         token = generar_token(1, "admin")
-        enviar_correos_validacion(request.app.state.cursos_repo.conn_str, "Administrador", "Admin")
+        enviar_correos_validacion(request.app.state.cursos_repo.conn_string, "Administrador", "Admin")
         return {"token": token, "mensaje": "Acceso concedido! Bienvenida Ingeniera", "rol": "admin"}
     raise HTTPException(status_code=401, detail="Usuario o contrasena incorrectos")

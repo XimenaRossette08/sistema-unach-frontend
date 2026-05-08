@@ -10,7 +10,7 @@ class CorreoRequest(BaseModel):
 
 @router.get("/api/correos-notificacion")
 def listar_correos(request: Request):
-    conn = psycopg2.connect(request.app.state.cursos_repo.conn_str)
+    conn = psycopg2.connect(request.app.state.cursos_repo.conn_string)
     cur = conn.cursor()
     cur.execute("SELECT id, correo, nombre FROM correos_notificacion ORDER BY id")
     rows = cur.fetchall()
@@ -19,7 +19,7 @@ def listar_correos(request: Request):
 
 @router.post("/api/correos-notificacion")
 def agregar_correo(req: CorreoRequest, request: Request):
-    conn = psycopg2.connect(request.app.state.cursos_repo.conn_str)
+    conn = psycopg2.connect(request.app.state.cursos_repo.conn_string)
     cur = conn.cursor()
     cur.execute("INSERT INTO correos_notificacion (correo, nombre) VALUES (%s, %s)", (req.correo, req.nombre))
     conn.commit()
@@ -28,7 +28,7 @@ def agregar_correo(req: CorreoRequest, request: Request):
 
 @router.delete("/api/correos-notificacion/{id}")
 def eliminar_correo(id: int, request: Request):
-    conn = psycopg2.connect(request.app.state.cursos_repo.conn_str)
+    conn = psycopg2.connect(request.app.state.cursos_repo.conn_string)
     cur = conn.cursor()
     cur.execute("DELETE FROM correos_notificacion WHERE id = %s", (id,))
     conn.commit()
