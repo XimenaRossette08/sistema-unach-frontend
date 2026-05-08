@@ -33,7 +33,7 @@ export default function RegistroAlumnos() {
     setMensaje(''); setError('');
 
     try {
-      const res = await axios.post('/api/registrar-alumno', {
+      const res = await axios.post('https://siae-unach.duckdns.org/api/registrar-alumno', {
         curso_id: parseInt(cursoId),
         nombre, matricula, correo, grado, grupo, asiste
       });

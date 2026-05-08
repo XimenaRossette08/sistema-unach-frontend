@@ -7,7 +7,7 @@ export default function CatalogoCursos() {
 
   const fetchCursos = async () => {
     try {
-      const res = await axios.get('/api/cursos');
+      const res = await axios.get('https://siae-unach.duckdns.org/api/cursos');
       setListaCursos(res.data || []);
     } catch (err) {
       console.error("Error al traer cursos", err);
