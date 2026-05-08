@@ -147,7 +147,7 @@ export default function ArquitectoProfesional() {
     for (let sql of lineas) {
       try {
         const res = await axios.post(
-          'http://100.31.39.219:8002/api/ejecutar-ddl',
+          'http://siae-unach.duckdns.org/api/ejecutar-ddl',
           { sql: sql.trim() + ";" },
           { headers: { 'Authorization': `Bearer ${token}` } }
         );

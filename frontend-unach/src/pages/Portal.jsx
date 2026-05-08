@@ -10,7 +10,7 @@ export default function Portal({ setUsuarioGlobal }) {
   const entrarComoAdmin = async () => {
     setCargando(true);
     try {
-      const res = await axios.post('http://100.31.39.219:8002/api/login', {
+      const res = await axios.post('http://siae-unach.duckdns.org/api/login', {
         usuario: 'admin',
         password: 'unach2026'
       });

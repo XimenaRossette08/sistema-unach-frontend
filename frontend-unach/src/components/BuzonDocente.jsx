@@ -11,7 +11,7 @@ export default function BuzonDocente({ rfc }) {
     const fetchInvitaciones = async () => {
       try {
         // Consultamos al microservicio filtrando por el RFC del docente logueado
-        const res = await axios.get(`http://100.31.39.219:8002/api/mis-invitaciones?rfc=${rfc}`);
+        const res = await axios.get(`http://siae-unach.duckdns.org/api/mis-invitaciones?rfc=${rfc}`);
         // Si el endpoint devuelve null por algún motivo, nos aseguramos de asignar un arreglo vacío
         setInvitaciones(res.data || []);
       } catch (err) {
@@ -28,7 +28,7 @@ export default function BuzonDocente({ rfc }) {
   const manejarAceptar = async (id, nombreCurso) => {
     try {
       // Avisamos al backend (Go) que el docente aceptó
-      await axios.post('http://100.31.39.219:8002/api/aceptar-invitacion', { id });
+      await axios.post('http://siae-unach.duckdns.org/api/aceptar-invitacion', { id });
       
       alert(`🎉 ¡Excelente! Has aceptado impartir el curso: ${nombreCurso}.`);
 
