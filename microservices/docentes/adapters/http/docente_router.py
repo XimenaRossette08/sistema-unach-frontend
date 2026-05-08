@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form
 from docentes.domain.models import Docente
 from docentes.ports.docente_repository import DocenteRepository
-from shared.auth import generar_token
+from shared.auth import generar_token, require_jwt
 
 router = APIRouter(tags=["Docentes"])
 
@@ -21,8 +21,9 @@ def get_cursos_repo(request: Request):
 
 @router.get("/api/docentes")
 def listar_con_match(
-    repo       = Depends(get_repo),
+    repo        = Depends(get_repo),
     cursos_repo = Depends(get_cursos_repo),
+    _: dict     = Depends(require_jwt),
 ):
     docentes = repo.listar_todos()
     try:
@@ -51,16 +52,17 @@ def listar_con_match(
 @router.post("/api/docentes")
 @router.post("/api/registro-docente")
 async def registrar(
-    rfc:              str                    = Form(...),
-    nombre:           str                    = Form(...),
-    banco:            str                    = Form(""),
-    direccion:        str                    = Form(""),
-    codigo_postal:    str                    = Form(""),
-    situacion_fiscal: str                    = Form(""),
-    ine_folio:        str                    = Form(""),
-    descripcion:      str                    = Form(""),
-    ine_archivo:      Optional[UploadFile]   = File(None),
+    rfc:              str                  = Form(...),
+    nombre:           str                  = Form(...),
+    banco:            str                  = Form(""),
+    direccion:        str                  = Form(""),
+    codigo_postal:    str                  = Form(""),
+    situacion_fiscal: str                  = Form(""),
+    ine_folio:        str                  = Form(""),
+    descripcion:      str                  = Form(""),
+    ine_archivo:      Optional[UploadFile] = File(None),
     repo              = Depends(get_repo),
+    _: dict           = Depends(require_jwt),
 ):
     ine_path = ""
     if ine_archivo and ine_archivo.filename:
@@ -77,6 +79,34 @@ async def registrar(
     try:
         repo.guardar(doc)
         return {"mensaje": "Expediente guardado exitosamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/api/docentes/{rfc}")
+async def actualizar(
+    rfc: str,
+    request: Request,
+    repo    = Depends(get_repo),
+    _: dict = Depends(require_jwt),
+):
+    data = await request.json()
+    try:
+        repo.actualizar(rfc, Docente(**data))
+        return {"mensaje": f"Docente {rfc} actualizado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/api/docentes/{rfc}")
+def eliminar(
+    rfc: str,
+    repo    = Depends(get_repo),
+    _: dict = Depends(require_jwt),
+):
+    try:
+        repo.eliminar(rfc)
+        return {"mensaje": f"Docente {rfc} eliminado correctamente"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

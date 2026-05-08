@@ -16,3 +16,11 @@ class DocenteRepository(ABC):
     @abstractmethod
     def obtener_por_rfc(self, rfc: str) -> Docente:
         pass
+
+    @abstractmethod
+    def actualizar(self, rfc: str, d: Docente) -> None:
+        pass
+
+    @abstractmethod
+    def eliminar(self, rfc: str) -> None:
+        pass

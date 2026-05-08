@@ -10,7 +10,19 @@ class CursoRepository(ABC):
         pass
 
     @abstractmethod
+    def obtener_curso_por_id(self, id: int) -> Curso:
+        pass
+
+    @abstractmethod
     def crear_curso(self, curso: Curso) -> None:
+        pass
+
+    @abstractmethod
+    def actualizar_curso(self, id: int, curso: Curso) -> None:
+        pass
+
+    @abstractmethod
+    def eliminar_curso(self, id: int) -> None:
         pass
 
     @abstractmethod

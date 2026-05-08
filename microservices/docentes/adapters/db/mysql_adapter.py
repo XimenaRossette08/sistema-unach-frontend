@@ -46,3 +46,23 @@ class MySQLAdapter(DocenteRepository):
         if not row:
             raise ValueError(f"RFC {rfc} no encontrado")
         return Docente(**row)
+
+    def actualizar(self, rfc: str, d: Docente) -> None:
+        conn = self._conn()
+        cur  = conn.cursor()
+        cur.execute("""
+            UPDATE docentes SET
+                nombre=%s, direccion=%s, codigo_postal=%s, banco=%s,
+                situacion_fiscal=%s, ine_folio=%s, descripcion_perfil=%s
+            WHERE rfc=%s
+        """, (d.nombre, d.direccion, d.codigo_postal, d.banco,
+               d.situacion_fiscal, d.ine_folio, d.descripcion, rfc))
+        conn.commit()
+        cur.close(); conn.close()
+
+    def eliminar(self, rfc: str) -> None:
+        conn = self._conn()
+        cur  = conn.cursor()
+        cur.execute("DELETE FROM docentes WHERE rfc = %s", (rfc,))
+        conn.commit()
+        cur.close(); conn.close()

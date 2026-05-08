@@ -14,7 +14,7 @@ export default function GestionInvitaciones() {
     const fetchData = async () => {
       try {
         const [resDoc, resCur] = await Promise.all([
-          axios.get('http://localhost:8002/api/docentes'),
+          axios.get('http://localhost:8002/api/docentes', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }),
           axios.get('http://localhost:8002/api/cursos')
         ]);
         setDocentes(resDoc.data);
@@ -60,7 +60,8 @@ export default function GestionInvitaciones() {
     };
 
     try {
-      await axios.post('http://localhost:8002/api/enviar-invitacion', payload);
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:8002/api/enviar-invitacion', payload, { headers: { 'Authorization': `Bearer ${token}` } });
       alert(`✅ ¡Invitación enviada exitosamente a ${docente.nombre}!`);
     } catch (err) {
       alert("❌ Error: No se pudo procesar la invitación en el microservicio.");

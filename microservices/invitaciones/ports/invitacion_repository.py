@@ -24,3 +24,7 @@ class InvitacionRepository(ABC):
     @abstractmethod
     def obtener_por_id(self, id: str) -> Invitacion:
         pass
+
+    @abstractmethod
+    def eliminar(self, id: str) -> None:
+        pass

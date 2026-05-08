@@ -8,8 +8,9 @@ from fastapi           import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from fpdf              import FPDF
 
-from alumnos.domain.models         import Alumno
+from alumnos.domain.models           import Alumno
 from alumnos.ports.alumno_repository import AlumnoRepository
+from shared.auth                     import require_jwt
 
 router = APIRouter(tags=["Alumnos"])
 
@@ -35,7 +36,11 @@ async def registrar(request: Request, repo = Depends(get_repo)):
 
 
 @router.get("/api/lista-alumnos")
-def listar_alumnos(repo = Depends(get_repo), cursos_repo = Depends(get_cursos_repo)):
+def listar_alumnos(
+    repo        = Depends(get_repo),
+    cursos_repo = Depends(get_cursos_repo),
+    _: dict     = Depends(require_jwt),
+):
     alumnos = repo.obtener_todos()
     try:
         mapa = {c.id: c.nombre for c in cursos_repo.obtener_cursos()}
@@ -44,8 +49,54 @@ def listar_alumnos(repo = Depends(get_repo), cursos_repo = Depends(get_cursos_re
     return [{**al.dict(), "nombre_curso": mapa.get(al.curso_id, "")} for al in alumnos]
 
 
+@router.get("/api/alumnos/{id}")
+def obtener_alumno(
+    id: int,
+    repo    = Depends(get_repo),
+    _: dict = Depends(require_jwt),
+):
+    try:
+        return repo.obtener_por_id(id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail=f"Alumno {id} no encontrado")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/api/alumnos/{id}")
+async def actualizar_alumno(
+    id: int,
+    request: Request,
+    repo    = Depends(get_repo),
+    _: dict = Depends(require_jwt),
+):
+    data = await request.json()
+    try:
+        repo.actualizar(id, Alumno(**data))
+        return {"status": "success", "message": f"Alumno {id} actualizado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/api/alumnos/{id}")
+def eliminar_alumno(
+    id: int,
+    repo    = Depends(get_repo),
+    _: dict = Depends(require_jwt),
+):
+    try:
+        repo.eliminar(id)
+        return {"status": "success", "message": f"Alumno {id} eliminado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/api/notificar-docente")
-def obtener_conteo(cursoId: int, repo = Depends(get_repo)):
+def obtener_conteo(
+    cursoId: int,
+    repo    = Depends(get_repo),
+    _: dict = Depends(require_jwt),
+):
     return {"alumnos_inscritos": repo.contar_por_curso(cursoId)}
 
 
@@ -71,14 +122,19 @@ def _crear_pdf(nombre: str, inicio: str, fin: str, alumnos) -> bytes:
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("Arial", "", 10)
     for al in alumnos:
-        pdf.cell(90, 10, al.nombre,                   border=1, align="L")
-        pdf.cell(50, 10, al.matricula,                border=1, align="C")
-        pdf.cell(50, 10, f"{al.grado} - {al.grupo}",  border=1, align="C", ln=True)
+        pdf.cell(90, 10, al.nombre,                  border=1, align="L")
+        pdf.cell(50, 10, al.matricula,               border=1, align="C")
+        pdf.cell(50, 10, f"{al.grado} - {al.grupo}", border=1, align="C", ln=True)
     return bytes(pdf.output())
 
 
 @router.get("/api/generar-pdf")
-def generar_pdf(cursoId: int, repo = Depends(get_repo), cursos_repo = Depends(get_cursos_repo)):
+def generar_pdf(
+    cursoId: int,
+    repo        = Depends(get_repo),
+    cursos_repo = Depends(get_cursos_repo),
+    _: dict     = Depends(require_jwt),
+):
     nombre, inicio, fin = "Curso Desconocido", "", ""
     try:
         for c in cursos_repo.obtener_cursos():
@@ -99,12 +155,13 @@ def generar_pdf(cursoId: int, repo = Depends(get_repo), cursos_repo = Depends(ge
 @router.post("/api/enviar-reporte-correo")
 async def enviar_reporte(
     request: Request,
-    repo = Depends(get_repo),
+    repo        = Depends(get_repo),
     cursos_repo = Depends(get_cursos_repo),
+    _: dict     = Depends(require_jwt),
 ):
-    data    = await request.json()
-    cid     = data.get("curso_id")
-    correo  = data.get("correo_profesor")
+    data  = await request.json()
+    cid   = data.get("curso_id")
+    correo = data.get("correo_profesor")
     nombre, inicio, fin = "Curso Desconocido", "", ""
     try:
         for c in cursos_repo.obtener_cursos():
@@ -115,7 +172,6 @@ async def enviar_reporte(
         pass
     alumnos   = repo.obtener_alumnos_por_curso(cid)
     pdf_bytes = _crear_pdf(nombre, inicio, fin, alumnos)
-
     msg = MIMEMultipart()
     msg["From"]    = GMAIL_USER
     msg["To"]      = correo

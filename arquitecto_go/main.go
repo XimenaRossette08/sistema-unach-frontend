@@ -9,14 +9,12 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/lib/pq"
 )
 
 var db *sql.DB
-
-// ══════════════════════════════════════════════════════════
-//  MODELOS
-// ══════════════════════════════════════════════════════════
+var secretKey = []byte("SIAE_UNACH_SECRET_KEY_2026")
 
 type DDLRequest struct {
 	SQL string `json:"sql"`
@@ -27,9 +25,22 @@ type DDLResponse struct {
 }
 
 // ══════════════════════════════════════════════════════════
+//  VALIDACIÓN JWT
+// ══════════════════════════════════════════════════════════
+
+func validarJWT(tokenString string) bool {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("método de firma inesperado")
+		}
+		return secretKey, nil
+	})
+	return err == nil && token.Valid
+}
+
+// ══════════════════════════════════════════════════════════
 //  1. ANALIZADOR LÉXICO
-//  Verifica que el primer token sea CREATE y el objeto sea
-//  DATABASE o TABLE. Rechaza cualquier token desconocido.
+//  Reconoce: CREATE, DROP, ALTER
 // ══════════════════════════════════════════════════════════
 
 func analizadorLexico(input string) (string, string, string, error) {
@@ -37,21 +48,32 @@ func analizadorLexico(input string) (string, string, string, error) {
 
 	if len(tokens) < 3 {
 		return "", "", "", fmt.Errorf(
-			"ERROR LEXICO: Sentencia incompleta. Se esperaba 'CREATE [OBJETO] [NOMBRE]'")
+			"ERROR LEXICO: Sentencia incompleta. Se esperaba '[VERBO] [OBJETO] [NOMBRE]'")
 	}
 
 	verbo  := strings.ToUpper(tokens[0])
 	objeto := strings.ToUpper(tokens[1])
 	nombre := strings.TrimSuffix(strings.TrimSuffix(tokens[2], ";"), "(")
 
-	if verbo != "CREATE" {
-		return "", "", "", fmt.Errorf(
-			"ERROR LEXICO: Token inesperado '%s'. Se esperaba 'CREATE'", verbo)
+	verbosValidos := map[string]bool{
+		"CREATE": true,
+		"DROP":   true,
+		"ALTER":  true,
 	}
 
-	if objeto != "DATABASE" && objeto != "TABLE" {
+	if !verbosValidos[verbo] {
 		return "", "", "", fmt.Errorf(
-			"ERROR LEXICO: Objeto '%s' no reconocido. Use 'DATABASE' o 'TABLE'", objeto)
+			"ERROR LEXICO: Token inesperado '%s'. Use CREATE, DROP o ALTER", verbo)
+	}
+
+	objetosValidos := map[string]bool{
+		"DATABASE": true,
+		"TABLE":    true,
+	}
+
+	if !objetosValidos[objeto] {
+		return "", "", "", fmt.Errorf(
+			"ERROR LEXICO: Objeto '%s' no reconocido. Use DATABASE o TABLE", objeto)
 	}
 
 	return verbo, objeto, nombre, nil
@@ -59,26 +81,43 @@ func analizadorLexico(input string) (string, string, string, error) {
 
 // ══════════════════════════════════════════════════════════
 //  2. ANALIZADOR SINTÁCTICO
-//  Valida estructura: nombre válido, paréntesis en TABLE,
-//  sin paréntesis en DATABASE.
+//  Valida estructura según verbo y objeto
 // ══════════════════════════════════════════════════════════
 
-func analizadorSintactico(objeto, nombre, input string) error {
+func analizadorSintactico(verbo, objeto, nombre, input string) error {
 	validarNombre := regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 	if !validarNombre.MatchString(nombre) {
 		return fmt.Errorf(
 			"ERROR SINTACTICO: '%s' no es un nombre válido para un objeto de base de datos", nombre)
 	}
 
-	if objeto == "DATABASE" && strings.Contains(input, "(") {
-		return fmt.Errorf(
-			"ERROR SINTACTICO: Una Base de Datos no puede contener definicion de atributos")
-	}
+	switch verbo {
+	case "CREATE":
+		if objeto == "DATABASE" && strings.Contains(input, "(") {
+			return fmt.Errorf("ERROR SINTACTICO: DATABASE no puede tener atributos")
+		}
+		if objeto == "TABLE" {
+			if !strings.Contains(input, "(") || !strings.Contains(input, ")") {
+				return fmt.Errorf("ERROR SINTACTICO: TABLE '%s' debe tener atributos entre paréntesis", nombre)
+			}
+		}
 
-	if objeto == "TABLE" {
-		if !strings.Contains(input, "(") || !strings.Contains(input, ")") {
-			return fmt.Errorf(
-				"ERROR SINTACTICO: La tabla '%s' debe incluir atributos entre parentesis", nombre)
+	case "DROP":
+		tokens := strings.Fields(input)
+		if len(tokens) < 3 {
+			return fmt.Errorf("ERROR SINTACTICO: DROP requiere 'DROP [TABLE|DATABASE] [nombre]'")
+		}
+		if strings.Contains(input, "(") {
+			return fmt.Errorf("ERROR SINTACTICO: DROP no acepta paréntesis")
+		}
+
+	case "ALTER":
+		upper := strings.ToUpper(input)
+		if !strings.Contains(upper, "ADD") && !strings.Contains(upper, "DROP COLUMN") {
+			return fmt.Errorf("ERROR SINTACTICO: ALTER TABLE requiere ADD o DROP COLUMN")
+		}
+		if strings.Contains(upper, "ADD") && !strings.Contains(upper, "COLUMN") {
+			return fmt.Errorf("ERROR SINTACTICO: ALTER TABLE ADD requiere la palabra COLUMN")
 		}
 	}
 
@@ -87,10 +126,10 @@ func analizadorSintactico(objeto, nombre, input string) error {
 
 // ══════════════════════════════════════════════════════════
 //  3. ANALIZADOR SEMÁNTICO
-//  Verifica nombres reservados y coherencia de atributos.
+//  Verifica nombres reservados y coherencia
 // ══════════════════════════════════════════════════════════
 
-func analizadorSemantico(objeto, nombre, input string) error {
+func analizadorSemantico(verbo, objeto, nombre, input string) error {
 	reservados := []string{"SISTEMA", "ROOT", "ADMIN", "SIAE", "POSTGRES", "CONFIG"}
 	for _, r := range reservados {
 		if strings.ToUpper(nombre) == r {
@@ -99,26 +138,33 @@ func analizadorSemantico(objeto, nombre, input string) error {
 		}
 	}
 
-	if objeto == "TABLE" {
+	if verbo == "CREATE" && objeto == "TABLE" {
 		re := regexp.MustCompile(`\(([^)]+)\)`)
 		match := re.FindStringSubmatch(input)
-		if match == nil {
-			return fmt.Errorf("ERROR SEMANTICO: Definicion de atributos vacia en tabla '%s'", nombre)
+		if match != nil {
+			campos := strings.Split(match[1], ",")
+			vistos := map[string]bool{}
+			for _, campo := range campos {
+				partes := strings.Fields(strings.TrimSpace(campo))
+				if len(partes) == 0 {
+					continue
+				}
+				col := strings.ToLower(partes[0])
+				if vistos[col] {
+					return fmt.Errorf(
+						"ERROR SEMANTICO: El atributo '%s' está duplicado en la tabla '%s'", col, nombre)
+				}
+				vistos[col] = true
+			}
 		}
+	}
 
-		campos := strings.Split(match[1], ",")
-		vistos := map[string]bool{}
-		for _, campo := range campos {
-			partes := strings.Fields(strings.TrimSpace(campo))
-			if len(partes) == 0 {
-				continue
-			}
-			col := strings.ToLower(partes[0])
-			if vistos[col] {
-				return fmt.Errorf(
-					"ERROR SEMANTICO: El atributo '%s' esta duplicado en la tabla '%s'", col, nombre)
-			}
-			vistos[col] = true
+	if verbo == "DROP" && objeto == "DATABASE" {
+		if strings.ToUpper(nombre) == "DB_CURSOS" ||
+			strings.ToUpper(nombre) == "DB_DOCENTES" ||
+			strings.ToUpper(nombre) == "DB_ALUMNOS" {
+			return fmt.Errorf(
+				"ERROR SEMANTICO: La base de datos '%s' es del sistema y no puede eliminarse", nombre)
 		}
 	}
 
@@ -139,6 +185,17 @@ func ejecutarDDL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// — Validar JWT —
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		http.Error(w, `{"detail":"Token no encontrado"}`, http.StatusUnauthorized)
+		return
+	}
+	if !validarJWT(strings.TrimPrefix(authHeader, "Bearer ")) {
+		http.Error(w, `{"detail":"Sesion invalida o expirada"}`, http.StatusUnauthorized)
+		return
+	}
+
 	var req DDLRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, `{"detail":"JSON invalido"}`, http.StatusBadRequest)
@@ -148,22 +205,22 @@ func ejecutarDDL(w http.ResponseWriter, r *http.Request) {
 	input := strings.TrimSpace(req.SQL)
 
 	// — Fase 1: Léxico —
-	_, objeto, nombre, err := analizadorLexico(input)
+	verbo, objeto, nombre, err := analizadorLexico(input)
 	if err != nil {
 		http.Error(w, fmt.Sprintf(`{"detail":"%s"}`, err.Error()), http.StatusBadRequest)
 		return
 	}
-	log.Printf("✅ Lexico OK  | objeto=%s nombre=%s", objeto, nombre)
+	log.Printf("✅ Lexico OK  | verbo=%s objeto=%s nombre=%s", verbo, objeto, nombre)
 
 	// — Fase 2: Sintáctico —
-	if err := analizadorSintactico(objeto, nombre, input); err != nil {
+	if err := analizadorSintactico(verbo, objeto, nombre, input); err != nil {
 		http.Error(w, fmt.Sprintf(`{"detail":"%s"}`, err.Error()), http.StatusBadRequest)
 		return
 	}
 	log.Println("✅ Sintactico OK")
 
 	// — Fase 3: Semántico —
-	if err := analizadorSemantico(objeto, nombre, input); err != nil {
+	if err := analizadorSemantico(verbo, objeto, nombre, input); err != nil {
 		http.Error(w, fmt.Sprintf(`{"detail":"%s"}`, err.Error()), http.StatusForbidden)
 		return
 	}
@@ -175,9 +232,9 @@ func ejecutarDDL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("💎 DDL ejecutado: %s %s", objeto, nombre)
+	log.Printf("💎 DDL ejecutado: %s %s %s", verbo, objeto, nombre)
 	json.NewEncoder(w).Encode(DDLResponse{
-		Mensaje: fmt.Sprintf("Compilacion exitosa: %s '%s' creado correctamente", objeto, nombre),
+		Mensaje: fmt.Sprintf("Compilacion exitosa: %s %s '%s' ejecutado correctamente", verbo, objeto, nombre),
 	})
 }
 
@@ -193,6 +250,8 @@ func main() {
 	http.HandleFunc("/api/ejecutar-ddl", ejecutarDDL)
 
 	fmt.Println("🏗️  ArquitectoDDL Go corriendo en http://localhost:8090")
-	fmt.Println("📐 Analizadores: Lexico | Sintactico | Semantico")
+	fmt.Println("📐 Operaciones: CREATE | DROP | ALTER")
+	fmt.Println("🔍 Analizadores: Lexico | Sintactico | Semantico")
+	fmt.Println("🔐 JWT validacion activa")
 	log.Fatal(http.ListenAndServe(":8090", nil))
 }

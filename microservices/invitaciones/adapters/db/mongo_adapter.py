@@ -2,7 +2,7 @@ from datetime import datetime
 from bson     import ObjectId
 from pymongo  import MongoClient
 from typing   import List
-from invitaciones.domain.models          import Invitacion
+from invitaciones.domain.models               import Invitacion
 from invitaciones.ports.invitacion_repository import InvitacionRepository
 
 
@@ -32,6 +32,9 @@ class MongoAdapter(InvitacionRepository):
         if not doc:
             raise ValueError(f"Invitacion {id} no encontrada")
         return self._m(doc)
+
+    def eliminar(self, id: str) -> None:
+        self.col.delete_one({"_id": ObjectId(id)})
 
     def _m(self, doc: dict) -> Invitacion:
         doc["id"] = str(doc.pop("_id"))

@@ -35,10 +35,11 @@ export default function CatalogoCursos() {
     if (!correo) return; // Si cancelas o lo dejas vacío, no hace nada
 
     try {
-      await axios.post('/api/enviar-reporte-correo', { 
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:8002/api/enviar-reporte-correo', { 
         curso_id: id.toString(), 
         correo_profesor: correo 
-      });
+      }, { headers: { 'Authorization': `Bearer ${token}` } });
       alert(`✅ Reporte enviado exitosamente a: ${correo}`);
     } catch (err) {
       alert("❌ Error al enviar el correo. Revisa la consola o tu servidor de Go.");

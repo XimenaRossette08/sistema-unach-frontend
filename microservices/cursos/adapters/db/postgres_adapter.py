@@ -35,6 +35,26 @@ class PostgresAdapter(CursoRepository):
             """)
             return [Curso(**row) for row in cur.fetchall()]
 
+    def obtener_curso_por_id(self, id: int) -> Curso:
+        with self._cursor() as cur:
+            cur.execute("""
+                SELECT id,
+                    COALESCE(nombre,'')             AS nombre,
+                    COALESCE(tipo,'')               AS tipo,
+                    COALESCE(modalidad,'')          AS modalidad,
+                    COALESCE(objetivo,'')           AS objetivo,
+                    COALESCE(contenido,'')          AS contenido,
+                    COALESCE(duracion,'')           AS duracion,
+                    COALESCE(horario,'')            AS horario,
+                    COALESCE(fecha_inicio::text,'') AS fecha_inicio,
+                    COALESCE(fecha_fin::text,'')    AS fecha_fin
+                FROM cursos WHERE id = %s
+            """, (id,))
+            row = cur.fetchone()
+            if not row:
+                raise ValueError(f"Curso {id} no encontrado")
+            return Curso(**row)
+
     def crear_curso(self, curso: Curso) -> None:
         with self._cursor() as cur:
             cur.execute("""
@@ -44,6 +64,24 @@ class PostgresAdapter(CursoRepository):
             """, (curso.nombre, curso.tipo, curso.modalidad, curso.objetivo,
                    curso.contenido, curso.duracion, curso.horario,
                    curso.fecha_inicio, curso.fecha_fin))
+            self.conn.commit()
+
+    def actualizar_curso(self, id: int, curso: Curso) -> None:
+        with self._cursor() as cur:
+            cur.execute("""
+                UPDATE cursos SET
+                    nombre=%s, tipo=%s, modalidad=%s, objetivo=%s,
+                    contenido=%s, duracion=%s, horario=%s,
+                    fecha_inicio=%s, fecha_fin=%s
+                WHERE id=%s
+            """, (curso.nombre, curso.tipo, curso.modalidad, curso.objetivo,
+                   curso.contenido, curso.duracion, curso.horario,
+                   curso.fecha_inicio, curso.fecha_fin, id))
+            self.conn.commit()
+
+    def eliminar_curso(self, id: int) -> None:
+        with self._cursor() as cur:
+            cur.execute("DELETE FROM cursos WHERE id = %s", (id,))
             self.conn.commit()
 
     def registrar_carga_academica(self, rfc: str, materia: str, horario: str) -> None:

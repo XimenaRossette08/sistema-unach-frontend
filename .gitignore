@@ -19,3 +19,19 @@ frontend-unach/.env
 # Otros
 .DS_Store
 .vscode/
+# Bases de datos locales
+*.db
+*.sqlite
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Scripts de setup
+microservices/update_crud.py
+microservices/setup_siae.py
+
+# Uploads
+microservices/uploads/

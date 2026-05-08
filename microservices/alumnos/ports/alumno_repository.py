@@ -18,5 +18,17 @@ class AlumnoRepository(ABC):
         pass
 
     @abstractmethod
+    def obtener_por_id(self, id: int) -> Alumno:
+        pass
+
+    @abstractmethod
     def obtener_alumnos_por_curso(self, curso_id: int) -> List[Alumno]:
+        pass
+
+    @abstractmethod
+    def actualizar(self, id: int, alumno: Alumno) -> None:
+        pass
+
+    @abstractmethod
+    def eliminar(self, id: int) -> None:
         pass

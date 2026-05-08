@@ -16,7 +16,7 @@ export default function MonitorAlumnos() {
     const fetchAlumnos = async () => {
       try {
         // 🚩 Usamos la URL completa para evitar problemas de proxy
-        const res = await axios.get('http://localhost:8002/api/lista-alumnos');
+        const res = await axios.get('http://localhost:8002/api/lista-alumnos', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         setAlumnos(res.data || []);
       } catch (err) {
         console.error('Error al traer alumnos:', err);
@@ -52,7 +52,8 @@ export default function MonitorAlumnos() {
         correo_profesor: datosCorreo.correo_profesor
       };
 
-      await axios.post('http://localhost:8002/api/enviar-reporte-correo', payload);
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:8002/api/enviar-reporte-correo', payload, { headers: { 'Authorization': `Bearer ${token}` } });
       
       alert("✅ ¡Éxito! El docente recibirá el PDF en su correo.");
       setDatosCorreo({ curso_id: '', correo_profesor: '' }); // Limpiamos campos
