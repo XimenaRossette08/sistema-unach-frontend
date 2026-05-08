@@ -21,6 +21,8 @@ export default function InscripcionCurso() {
         matricula: form.matricula,
         correo: form.correo,
         telefono: form.telefono,
+        grado: form.grado,
+        grupo: form.grupo,
         curso_id: id,
         curso_nombre: nombre?.replace(/_/g, " ")
       });
