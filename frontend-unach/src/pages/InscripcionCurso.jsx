@@ -6,7 +6,7 @@ const API = "https://siae-unach.duckdns.org";
 
 export default function InscripcionCurso() {
   const { id, nombre } = useParams();
-  const [form, setForm] = useState({ nombre: "", matricula: "", correo: "", telefono: "" });
+  const [form, setForm] = useState({ nombre: "", matricula: "", correo: "", telefono: "", grado: "", grupo: "" });
   const [enviado, setEnviado] = useState(false);
   const [error, setError] = useState("");
 
@@ -63,6 +63,10 @@ export default function InscripcionCurso() {
             onChange={e => setForm({...form, correo: e.target.value})} style={inputStyle} />
           <input placeholder="Teléfono" value={form.telefono}
             onChange={e => setForm({...form, telefono: e.target.value})} style={inputStyle} />
+          <input placeholder="Grado" value={form.grado}
+            onChange={e => setForm({...form, grado: e.target.value})} style={inputStyle} />
+          <input placeholder="Grupo" value={form.grupo}
+            onChange={e => setForm({...form, grupo: e.target.value})} style={inputStyle} />
           <button onClick={handleSubmit} style={btnStyle}>
             📝 Confirmar Inscripción
           </button>
