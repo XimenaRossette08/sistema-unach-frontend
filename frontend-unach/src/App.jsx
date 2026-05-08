@@ -16,6 +16,7 @@ import GestionInvitaciones from './pages/GestionInvitaciones';
 import RegistroAlumnos from './pages/RegistroAlumnos';
 import MonitorAlumnos from './pages/MonitorAlumnos';
 import CatalogoCursos from './pages/CatalogoCursos';
+import InscripcionCurso from './pages/InscripcionCurso';
 
 function App() {
   // 🚩 SINCRONIZACIÓN: Recuperamos los datos del LocalStorage para que la sesión sea persistente
@@ -35,11 +36,7 @@ function App() {
         <Route path="/arquitecto-tecnico" element={<ArquitectoProfesional />} />
 
         {/* ALUMNOS (Inscripción pública fuera del sistema privado) */}
-        <Route path="/inscripcion-curso/:cursoId/:nombreCurso" element={
-          <div style={{ padding: '40px', minHeight: '100vh', background: '#f0f4f8', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <RegistroAlumnos />
-          </div>
-        } />
+        <Route path="/inscripcion-curso/:id/:nombre" element={<InscripcionCurso />} />
 
         {/* 🔐 SISTEMA PRIVADO (Envuelto en ProtectedRoute para seguridad) */}
         <Route path="/*" element={
