@@ -194,3 +194,43 @@ async def enviar_reporte(
         return {"status": "success", "message": "Enviado correctamente"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al enviar correo: {e}")
+
+@router.post("/api/invitar-alumnos")
+async def invitar_alumnos(request: Request, _: dict = Depends(require_jwt)):
+    data = await request.json()
+    curso_nombre = data.get("curso_nombre", "Curso")
+    correos_jefes = data.get("correos_jefes", [])
+    link = data.get("link_inscripcion", "")
+
+    html = f"""
+    <html><body style='font-family:Arial;padding:20px;'>
+    <h2 style='color:#003366'>SIAE UNACH — Invitación a Curso</h2>
+    <p>Estimado Jefe de Grupo,</p>
+    <p>Se ha abierto el registro para el siguiente curso:</p>
+    <h3 style='color:#C0A060'>{curso_nombre}</h3>
+    <p>Comparte el siguiente enlace con tu grupo para que se registren:</p>
+    <a href='{link}' style='background:#003366;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-block;margin:10px 0;'>
+        📝 Registrarse al Curso
+    </a>
+    <p style='color:#666;font-size:0.9rem;margin-top:20px;'>SIAE — Universidad Autónoma de Chiapas</p>
+    </body></html>
+    """
+
+    enviados = []
+    errores = []
+    for correo in correos_jefes:
+        try:
+            msg = MIMEMultipart()
+            msg["From"] = GMAIL_USER
+            msg["To"] = correo
+            msg["Subject"] = f"📚 Invitación al Curso: {curso_nombre}"
+            msg.attach(MIMEText(html, "html"))
+            with smtplib.SMTP("smtp.gmail.com", 587) as s:
+                s.starttls()
+                s.login(GMAIL_USER, GMAIL_PASS)
+                s.send_message(msg)
+            enviados.append(correo)
+        except Exception as e:
+            errores.append(correo)
+
+    return {"enviados": enviados, "errores": errores, "total": len(enviados)}

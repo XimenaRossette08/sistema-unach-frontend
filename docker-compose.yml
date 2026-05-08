@@ -1,22 +1,69 @@
 version: '3.8'
 
 services:
-  backend-go:
+
+  # ─── BASES DE DATOS ───────────────────────────────────────
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "102538"
+      POSTGRES_DB: db_cursos
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "102538"
+      MYSQL_DATABASE: db_docentes
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: always
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    restart: always
+
+  # ─── MICROSERVICIO FASTAPI ────────────────────────────────
+  fastapi:
+    build:
+      context: ./microservices
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+      - mysql
+      - mongodb
+      - redis
+    restart: always
+
+  # ─── ARQUITECTO DDL GO ────────────────────────────────────
+  arquitecto:
     build:
       context: ./arquitecto_go
     ports:
       - "8090:8090"
-    environment:
-      # IMPORTANTE: Aquí debes poner la IP privada de la instancia EC2 donde esté tu PostgreSQL
-      # o la IP pública si está en otro servidor. Cambia TU_IP_EC2 por la IP real.
-      - DATABASE_URL=postgres://postgres:102538@TU_IP_EC2:5433/db_cursos?sslmode=disable
+    depends_on:
+      - postgres
     restart: always
 
-  frontend-react:
-    build:
-      context: ./frontend-unach
-    ports:
-      - "80:80" # El dashboard será accesible directamente por la IP de la instancia
-    depends_on:
-      - backend-go
-    restart: always
+volumes:
+  postgres_data:
+  mysql_data:
+  mongo_data:

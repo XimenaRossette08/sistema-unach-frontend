@@ -246,7 +246,7 @@ func main() {
 	dbUrl := os.Getenv("DATABASE_URL")
 	if dbUrl == "" {
 		// Fallback para cuando desarrollas en tu PC sin Docker
-		dbUrl = "postgres://postgres:102538@localhost:5433/db_cursos?sslmode=disable"
+		dbUrl = "postgres://postgres:102538@postgres:5432/db_cursos?sslmode=disable"
 	}
 
 	db, err = sql.Open("postgres", dbUrl)
