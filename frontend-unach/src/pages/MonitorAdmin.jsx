@@ -9,7 +9,7 @@ export default function MonitorAdmin() {
   useEffect(() => {
     const fetchAceptados = async () => {
       try {
-        const res = await axios.get('http://localhost:8002/api/invitaciones-aceptadas', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+        const res = await axios.get('http://100.31.39.219:8002/api/invitaciones-aceptadas', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         setAceptados(res.data || []);
       } catch (err) {
         console.error('Error al traer datos de Go:', err);

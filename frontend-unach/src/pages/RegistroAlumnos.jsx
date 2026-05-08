@@ -19,7 +19,7 @@ export default function RegistroAlumnos() {
   useEffect(() => {
     const fetchConteo = async () => {
       try {
-        const res = await axios.get(`http://localhost:8002/api/notificar-docente?cursoId=${cursoId}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+        const res = await axios.get(`http://100.31.39.219:8002/api/notificar-docente?cursoId=${cursoId}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         setInscritos(res.data.alumnos_inscritos || 0);
       } catch (err) {
         console.error('Error al obtener conteo:', err);

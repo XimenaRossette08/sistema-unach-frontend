@@ -24,7 +24,7 @@ export default function CrearCurso() {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://localhost:8002/api/crear-curso', cursoData, {
+      await axios.post('http://100.31.39.219:8002/api/crear-curso', cursoData, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

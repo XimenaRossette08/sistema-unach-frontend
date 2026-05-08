@@ -36,7 +36,7 @@ export default function CatalogoCursos() {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:8002/api/enviar-reporte-correo', { 
+      await axios.post('http://100.31.39.219:8002/api/enviar-reporte-correo', { 
         curso_id: id.toString(), 
         correo_profesor: correo 
       }, { headers: { 'Authorization': `Bearer ${token}` } });

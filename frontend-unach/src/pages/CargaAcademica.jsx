@@ -10,7 +10,7 @@ export default function CargaAcademica({ usuario }) {
       if (!usuario?.rfc) return;
 
       try {
-        const res = await axios.get(`http://localhost:8002/api/mi-carga?rfc=${usuario.rfc}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+        const res = await axios.get(`http://100.31.39.219:8002/api/mi-carga?rfc=${usuario.rfc}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
         setCarga(res.data || []);
       } catch (err) {
         console.error("Error al consultar PostgreSQL:", err);

@@ -61,7 +61,7 @@ export default function RegistroDocente() {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://localhost:8002/api/registro-docente', formData, {
+      await axios.post('http://100.31.39.219:8002/api/registro-docente', formData, {
         headers: {
           'Content-Type':  'multipart/form-data',
           'Authorization': `Bearer ${token}`,
