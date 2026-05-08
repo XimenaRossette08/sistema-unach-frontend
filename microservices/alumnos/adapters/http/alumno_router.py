@@ -165,7 +165,7 @@ async def enviar_reporte(
     nombre, inicio, fin = "Curso Desconocido", "", ""
     try:
         for c in cursos_repo.obtener_cursos():
-            if c.id == cid:
+            if str(c.id) == str(cid):
                 nombre, inicio, fin = c.nombre, c.fecha_inicio, c.fecha_fin
                 break
     except Exception:
