@@ -22,12 +22,7 @@ app = FastAPI(
     version="2.0.0",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://mysql:5173"],
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
-)
+
 
 
 @app.middleware("http")
@@ -45,11 +40,11 @@ async def log_visitas(request: Request, call_next):
 @app.on_event("startup")
 def startup():
     app.state.cursos_repo       = CursosDB("postgresql://postgres:102538@postgres:5432/db_cursos")
-    app.state.docentes_repo     = DocentesDB(host="mysql", user="root", password="102538", database="db_docentes", port=3307)
+    app.state.docentes_repo     = DocentesDB(host="mysql", user="root", password="102538", database="db_docentes", port=3306)
     app.state.alumnos_repo      = AlumnosDB("../unach_alumnos.db")
-    app.state.invitaciones_repo = InvitacionesDB("mongodb://mysql:27017")
-    app.state.redis             = RedisAdapter("mysql", 6379)
-    print("🚀 SIAE UNACH corriendo en http://mysql:8002")
+    app.state.invitaciones_repo = InvitacionesDB("mongodb://mongodb:27017")
+    app.state.redis             = RedisAdapter("redis", 6379)
+    print("🚀 SIAE UNACH corriendo en http://0.0.0.0:8002")
     print("📊 PostgreSQL | MySQL | SQLite | MongoDB | Redis — ONLINE")
 
 
