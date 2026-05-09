@@ -83,5 +83,4 @@ const welcomeTitle    = { color: '#333', fontSize: '1.8rem', marginBottom: '8px'
 const subtitleStyle   = { color: '#888', fontSize: '1rem', marginBottom: '30px' };
 const formContainer   = { width: '100%', maxWidth: '350px', display: 'flex', flexDirection: 'column', gap: '16px' };
 const btnGold         = { background: '#C0A060', color: '#003366', padding: '18px', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' };
-const btnCompiladores = { background: '#ffffff', color: '#003366', padding: '18px', border: '2px solid #C0A060', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' };
 const noteStyle       = { marginTop: '30px', color: '#aaa', fontSize: '0.85rem', textAlign: 'center', maxWidth: '300px' };
