@@ -86,7 +86,7 @@ export default function RegistroDocente() {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', background: 'white', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto', background: 'white', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', borderTop: '5px solid #003366' }}>
       <h2 style={{ color: '#003366', marginBottom: '20px' }}>📝 Registro Oficial de Docentes</h2>
       <p style={{ color: '#666', marginBottom: '30px' }}>Complete el expediente del docente y cargue sus documentos probatorios.</p>
 
