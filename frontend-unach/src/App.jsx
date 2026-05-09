@@ -32,7 +32,6 @@ function App() {
         <Route path="/" element={<Portal setUsuarioGlobal={setUsuario} />} />
         
         {/* ARQUITECTO TÉCNICO (Herramienta de desarrollo) */}
-        <Route path="/arquitecto-tecnico" element={<ArquitectoProfesional />} />
 
         {/* ALUMNOS (Inscripción pública fuera del sistema privado) */}
         <Route path="/inscripcion-curso/:id/:nombre" element={<InscripcionCurso />} />
