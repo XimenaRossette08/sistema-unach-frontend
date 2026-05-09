@@ -58,9 +58,6 @@ export default function Portal({ setUsuarioGlobal }) {
             {cargando ? '⏳ Conectando...' : '🔐 Panel Administrativo'}
           </button>
 
-          <button onClick={() => navigate('/arquitecto-tecnico')} style={btnCompiladores}>
-            ⚙️ Herramientas Técnicas (Compiladores)
-          </button>
 
         </div>
 
