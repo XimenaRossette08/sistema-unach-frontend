@@ -1,67 +1,74 @@
-import React, { useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import Sidebar from "./components/Sidebar";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
-// Importación de Páginas
-import Portal from './pages/Portal';
-import AdminDashboard from './pages/AdminDashboard';
-import MonitorAdmin from './pages/MonitorAdmin';
-import CrearCurso from './pages/CrearCurso';
-import BuzonDocente from './pages/BuzonDocente';
-import CargaAcademica from './pages/CargaAcademica';
-import RegistroDocente from './pages/RegistroDocente';
-import GestionInvitaciones from './pages/GestionInvitaciones';
-import RegistroAlumnos from './pages/RegistroAlumnos';
-import MonitorAlumnos from './pages/MonitorAlumnos';
-import CatalogoCursos from './pages/CatalogoCursos';
-import InscripcionCurso from './pages/InscripcionCurso';
+import Portal from "./pages/Portal";
+import AdminDashboard from "./pages/AdminDashboard";
+import MonitorAdmin from "./pages/MonitorAdmin";
+import CrearCurso from "./pages/CrearCurso";
+import BuzonDocente from "./pages/BuzonDocente";
+import CargaAcademica from "./pages/CargaAcademica";
+import RegistroDocente from "./pages/RegistroDocente";
+import GestionInvitaciones from "./pages/GestionInvitaciones";
+import RegistroAlumnos from "./pages/RegistroAlumnos";
+import MonitorAlumnos from "./pages/MonitorAlumnos";
+import CatalogoCursos from "./pages/CatalogoCursos";
+import InscripcionCurso from "./pages/InscripcionCurso";
+
+function obtenerUsuarioDesdeToken() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return { rol: "", nombre: "", rfc: "" };
+    const decoded = jwtDecode(token);
+    return {
+      rol:    decoded.rol    || localStorage.getItem("userRole") || "",
+      nombre: decoded.nombre || localStorage.getItem("userName") || "",
+      rfc:    decoded.rfc    || localStorage.getItem("userRFC")  || ""
+    };
+  } catch {
+    return {
+      rol:    localStorage.getItem("userRole") || "",
+      nombre: localStorage.getItem("userName") || "",
+      rfc:    localStorage.getItem("userRFC")  || ""
+    };
+  }
+}
 
 function App() {
-  // 🚩 SINCRONIZACIÓN: Recuperamos los datos del LocalStorage para que la sesión sea persistente
-  const [usuario, setUsuario] = useState({
-    rol: localStorage.getItem('userRole') || '', 
-    nombre: localStorage.getItem('userName') || '',
-    rfc: localStorage.getItem('userRFC') || ''
-  });
+  const [usuario, setUsuario] = useState(obtenerUsuarioDesdeToken);
+
+  const setUsuarioGlobal = (data) => {
+    setUsuario(data);
+  };
+
+  useEffect(() => {
+    const u = obtenerUsuarioDesdeToken();
+    if (u.rol) setUsuario(u);
+  }, []);
 
   return (
-    <div style={{ minHeight: '100vh', width: '100%', background: '#f8f9fa' }}>
+    <div style={{ minHeight: "100vh", width: "100%", background: "#f8f9fa" }}>
       <Routes>
-        {/* RUTA PÚBLICA (Login/Portal) */}
-        <Route path="/" element={<Portal setUsuarioGlobal={setUsuario} />} />
-        
-        {/* ARQUITECTO TÉCNICO (Herramienta de desarrollo) */}
-
-        {/* ALUMNOS (Inscripción pública fuera del sistema privado) */}
+        <Route path="/" element={<Portal setUsuarioGlobal={setUsuarioGlobal} />} />
         <Route path="/inscripcion-curso/:id/:nombre" element={<InscripcionCurso />} />
-
-        {/* 🔐 SISTEMA PRIVADO (Envuelto en ProtectedRoute para seguridad) */}
         <Route path="/*" element={
           <ProtectedRoute>
-            <div style={{ display: 'flex' }}>
-              {/* Sidebar recibe el usuario para mostrar el nombre y rol en el menú */}
+            <div style={{ display: "flex" }}>
               <Sidebar usuario={usuario} />
-
-              <main style={{ marginLeft: '280px', padding: '40px', minHeight: '100vh', flex: 1 }}>
+              <main style={{ marginLeft: "280px", padding: "40px", minHeight: "100vh", flex: 1 }}>
                 <Routes>
-                  {/* RUTAS PARA ADMINISTRADORES */}
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/monitor" element={<MonitorAdmin />} />
-                  <Route path="/monitor-alumnos" element={<MonitorAlumnos />} />
-                  <Route path="/crear-curso" element={<CrearCurso />} />
-                  <Route path="/catalogo-cursos" element={<CatalogoCursos />} />
-                  <Route path="/registro" element={<RegistroDocente />} />
-                  <Route path="/gestionar-invitaciones" element={<GestionInvitaciones />} />
-
-                  {/* RUTAS PARA DOCENTES */}
-                  <Route path="/buzon" element={<BuzonDocente rfc={usuario.rfc} />} />
-                  
-                  {/* 🚩 CORRECCIÓN AQUÍ: Ahora le pasamos el objeto 'usuario' completo */}
-                  <Route path="/carga" element={<CargaAcademica usuario={usuario} />} />
-                  
-                  {/* Redirección automática si la ruta no existe */}
-                  <Route path="*" element={<Navigate to="/" />} />
+                  <Route path="/admin"                  element={usuario.rol === "admin" ? <AdminDashboard /> : <Navigate to="/buzon" />} />
+                  <Route path="/monitor"                element={usuario.rol === "admin" ? <MonitorAdmin /> : <Navigate to="/buzon" />} />
+                  <Route path="/monitor-alumnos"        element={usuario.rol === "admin" ? <MonitorAlumnos /> : <Navigate to="/buzon" />} />
+                  <Route path="/crear-curso"            element={usuario.rol === "admin" ? <CrearCurso /> : <Navigate to="/buzon" />} />
+                  <Route path="/catalogo-cursos"        element={usuario.rol === "admin" ? <CatalogoCursos /> : <Navigate to="/buzon" />} />
+                  <Route path="/registro"               element={usuario.rol === "admin" ? <RegistroDocente /> : <Navigate to="/buzon" />} />
+                  <Route path="/gestionar-invitaciones" element={usuario.rol === "admin" ? <GestionInvitaciones /> : <Navigate to="/buzon" />} />
+                  <Route path="/buzon"                  element={<BuzonDocente rfc={usuario.rfc} />} />
+                  <Route path="/carga"                  element={<CargaAcademica usuario={usuario} />} />
+                  <Route path="*"                       element={<Navigate to="/" />} />
                 </Routes>
               </main>
             </div>
