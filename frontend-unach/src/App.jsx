@@ -46,7 +46,6 @@ if (tokenUrl) {
   if (rolUrl) localStorage.setItem("userRole", rolUrl);
   if (rfcUrl) {
     localStorage.setItem("userRFC", rfcUrl);
-    localStorage.setItem("userName", rfcUrl);
   }
   window.history.replaceState({}, "", window.location.pathname);
 }

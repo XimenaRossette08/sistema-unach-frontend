@@ -1,8 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Sidebar({ usuario }) {
   const navigate = useNavigate();
+  const [nombreDocente, setNombreDocente] = useState(usuario.nombre || '');
+
+  useEffect(() => {
+    const rfc = usuario.rfc || localStorage.getItem('userRFC');
+    if (rfc && usuario.rol === 'docente') {
+      const token = localStorage.getItem('token');
+      fetch(`https://siae-unach.duckdns.org/api/docentes?rfc=${rfc}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const docente = Array.isArray(data) ? data.find(d => d.rfc === rfc) : null;
+        if (docente?.nombre) setNombreDocente(docente.nombre);
+      })
+      .catch(() => {});
+    } else {
+      setNombreDocente(usuario.nombre || '');
+    }
+  }, [usuario.rfc, usuario.rol]);
   const location = useLocation();
 
   const manejarLogout = () => {
@@ -39,7 +58,7 @@ export default function Sidebar({ usuario }) {
 
       <div style={profileCard}>
         <p style={welcomeText}>Bienvenido(a),</p>
-        <h3 style={userName}>{usuario.nombre || 'Usuario'}</h3>
+        <h3 style={userName}>{nombreDocente || usuario.nombre || 'Usuario'}</h3>
         <span style={rfcStyle}>{usuario.rfc || 'S/N RFC'}</span>
       </div>
 
