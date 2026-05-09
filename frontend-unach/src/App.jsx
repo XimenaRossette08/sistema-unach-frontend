@@ -36,14 +36,17 @@ function obtenerUsuarioDesdeToken() {
   }
 }
 
-// Leer token y rol de la URL si viene del sistema central
+// Leer token, rol y RFC de la URL si viene del sistema central
 const params = new URLSearchParams(window.location.search);
 const tokenUrl = params.get("token");
 const rolUrl = params.get("rol");
+const rfcUrl = params.get("rfc");
 if (tokenUrl) {
   localStorage.setItem("token", tokenUrl);
-  if (rolUrl) {
-    localStorage.setItem("userRole", rolUrl);
+  if (rolUrl) localStorage.setItem("userRole", rolUrl);
+  if (rfcUrl) {
+    localStorage.setItem("userRFC", rfcUrl);
+    localStorage.setItem("userName", rfcUrl);
   }
   window.history.replaceState({}, "", window.location.pathname);
 }
