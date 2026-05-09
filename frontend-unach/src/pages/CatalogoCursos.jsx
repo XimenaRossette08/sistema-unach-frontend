@@ -82,10 +82,10 @@ export default function CatalogoCursos() {
       </header>
 
       {cargando ? <p>Cargando catálogo...</p> : (
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
+        <div style={{ background: "white", padding: "20px", borderRadius: "12px", boxShadow: "0 10px 25px rgba(0,0,0,0.05)", overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ textAlign: "left", borderBottom: "2px solid #eee" }}>
+              <tr style={{ backgroundColor: "#003366", color: "#fff" }}>
                 <th style={pStyle}>ID</th>
                 <th style={pStyle}>Nombre del Curso</th>
                 <th style={pStyle}>Horario</th>

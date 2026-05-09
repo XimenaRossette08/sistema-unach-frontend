@@ -93,5 +93,5 @@ const msgLoading = { textAlign: 'center', padding: '40px', fontSize: '1.2rem', c
 const errorStyle = { textAlign: 'center', padding: '20px', backgroundColor: '#ffe6e6', color: '#cc0000', borderRadius: '8px', fontWeight: 'bold' };
 const emptyContainer = { textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '15px', color: '#888', border: '2px dashed #d1d9e0' };
 
-const tableStyle = { width: '100%', borderCollapse: 'collapse', textAlign: 'left', marginTop: '12px', backgroundColor: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', borderRadius: '8px' };
+const tableStyle = { width: '100%', borderCollapse: 'collapse', textAlign: 'left', marginTop: '12px', backgroundColor: '#fff', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', borderRadius: '12px', overflow: 'hidden' };
 const thStyle = { backgroundColor: '#003366', color: '#fff', borderBottom: '1px solid #e4e4e7' };
