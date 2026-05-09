@@ -13,7 +13,6 @@ from alumnos.adapters.http.alumno_router           import router as alumnos_rout
 from invitaciones.adapters.http.invitacion_router  import router as invitaciones_router
 from auth.router                                   import router as auth_router
 from notificaciones.router                         import router as notificaciones_router
-from arquitecto.adapters.http.arquitecto_router import router as arquitecto_router
 
 
 app = FastAPI(
@@ -55,7 +54,6 @@ app.include_router(cursos_router)
 app.include_router(docentes_router)
 app.include_router(alumnos_router)
 app.include_router(invitaciones_router)
-app.include_router(arquitecto_router)
 
 @app.get("/health")
 def health():

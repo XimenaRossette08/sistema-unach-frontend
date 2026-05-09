@@ -52,17 +52,6 @@ services:
       - mongodb
       - redis
     restart: always
-
-  # ─── ARQUITECTO DDL GO ────────────────────────────────────
-  arquitecto:
-    build:
-      context: ./arquitecto_go
-    ports:
-      - "8090:8090"
-    depends_on:
-      - postgres
-    restart: always
-
 volumes:
   postgres_data:
   mysql_data:

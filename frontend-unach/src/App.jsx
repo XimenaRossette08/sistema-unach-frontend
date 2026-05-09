@@ -7,7 +7,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import Portal from './pages/Portal';
 import AdminDashboard from './pages/AdminDashboard';
 import MonitorAdmin from './pages/MonitorAdmin';
-import ArquitectoProfesional from './pages/ArquitectoProfesional';
 import CrearCurso from './pages/CrearCurso';
 import BuzonDocente from './pages/BuzonDocente';
 import CargaAcademica from './pages/CargaAcademica';

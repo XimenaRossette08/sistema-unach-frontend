@@ -38,12 +38,7 @@ export default function AdminDashboard() {
         Bienvenido, Administrador
       </h1>
       <div style={{ display: "flex", gap: "30px", flexWrap: "wrap" }}>
-        <div style={{ ...cardStyle, borderLeft: "8px solid #C0A060" }}>
-          <h3 style={cardTitle}>Compiladores</h3>
-          <p style={cardText}>Usa el generador DDL para crear estructuras en Postgres.</p>
-          <Link to="/arquitecto" style={linkBtn}>Ir al Generador</Link>
-        </div>
-        <div style={{ ...cardStyle, borderLeft: "8px solid #003366" }}>
+      <div style={{ ...cardStyle, borderLeft: "8px solid #003366" }}>
           <h3 style={cardTitle}>Taller de Desarrollo 4</h3>
           <p style={cardText}>Gestiona la plantilla docente y las convocatorias de cursos.</p>
           <Link to="/monitor" style={linkBtn}>Ver Monitor</Link>
