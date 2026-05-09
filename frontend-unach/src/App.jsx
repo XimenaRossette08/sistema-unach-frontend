@@ -36,6 +36,14 @@ function obtenerUsuarioDesdeToken() {
   }
 }
 
+// Leer token de la URL si viene del sistema central
+const params = new URLSearchParams(window.location.search);
+const tokenUrl = params.get("token");
+if (tokenUrl) {
+  localStorage.setItem("token", tokenUrl);
+  window.history.replaceState({}, "", window.location.pathname);
+}
+
 function App() {
   const [usuario, setUsuario] = useState(obtenerUsuarioDesdeToken);
 
