@@ -64,8 +64,8 @@ function App() {
         <Route path="/*" element={
           <ProtectedRoute>
             <div style={{ display: "flex" }}>
-              {usuario.rol === "admin" && <Sidebar usuario={usuario} />}
-              <main style={{ marginLeft: usuario.rol === "admin" ? "280px" : "0px", padding: "40px", minHeight: "100vh", flex: 1 }}>
+              <Sidebar usuario={usuario} />
+              <main style={{ marginLeft: "280px", padding: "40px", minHeight: "100vh", flex: 1 }}>
                 <Routes>
                   <Route path="/admin"                  element={usuario.rol === "admin" ? <AdminDashboard /> : <Navigate to="/buzon" />} />
                   <Route path="/monitor"                element={usuario.rol === "admin" ? <MonitorAdmin /> : <Navigate to="/buzon" />} />
