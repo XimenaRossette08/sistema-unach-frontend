@@ -36,11 +36,15 @@ function obtenerUsuarioDesdeToken() {
   }
 }
 
-// Leer token de la URL si viene del sistema central
+// Leer token y rol de la URL si viene del sistema central
 const params = new URLSearchParams(window.location.search);
 const tokenUrl = params.get("token");
+const rolUrl = params.get("rol");
 if (tokenUrl) {
   localStorage.setItem("token", tokenUrl);
+  if (rolUrl) {
+    localStorage.setItem("userRole", rolUrl);
+  }
   window.history.replaceState({}, "", window.location.pathname);
 }
 
